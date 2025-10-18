@@ -1,24 +1,24 @@
 "use client"
 
 import React from "react"
-import { InventoryList } from "@/components/inventory/inventory-list"
-import { AddProductModal } from "@/components/inventory/inventory-add-modal"
+import { SupplierList } from "@/components/supplier/supplier-list"
+import { AddSupplierModal } from "@/components/supplier/supplier-add-modal"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { SiteHeader } from "@/components/layout/header"
 import { AppSidebar } from "@/components/sidebar/app-sidebar"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
-import type { Product } from "@/components/inventory/inventory-action"
+import type { Supplier } from "@/components/supplier/supplier-action"
 
-interface InventoryListPageClientProps {
-  initialProducts: Product[]
+interface SupplierListPageClientProps {
+  initialSuppliers: Supplier[]
 }
 
-export function InventoryListPageClient({ initialProducts }: InventoryListPageClientProps) {
+export function SupplierListPageClient({ initialSuppliers }: SupplierListPageClientProps) {
   const [isAddModalOpen, setIsAddModalOpen] = React.useState(false)
 
-  const handleProductAdded = () => {
-    // Refresh the page to get updated products
+  const handleSupplierAdded = () => {
+    // Refresh the page to get updated suppliers
     window.location.reload()
   }
 
@@ -34,9 +34,9 @@ export function InventoryListPageClient({ initialProducts }: InventoryListPageCl
                 <div className="flex flex-col gap-4 py-4 px-6 md:gap-6 md:py-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h1 className="text-2xl font-bold tracking-tight">Daftar Inventory</h1>
+                      <h1 className="text-2xl font-bold tracking-tight">Daftar Supplier</h1>
                       <p className="text-muted-foreground">
-                        Kelola produk dan stok inventory Anda
+                        Kelola data supplier Anda
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
@@ -46,11 +46,11 @@ export function InventoryListPageClient({ initialProducts }: InventoryListPageCl
                         onClick={() => setIsAddModalOpen(true)}
                       >
                         <Plus className="mr-1 h-4 w-4" />
-                        Produk
+                        Supplier
                       </Button>
                     </div>
                   </div>
-                  <InventoryList initialProducts={initialProducts} />
+                  <SupplierList initialSuppliers={initialSuppliers} onAddSupplier={handleSupplierAdded} />
                 </div>
               </div>
             </div>
@@ -58,10 +58,10 @@ export function InventoryListPageClient({ initialProducts }: InventoryListPageCl
         </div>
       </SidebarProvider>
 
-      <AddProductModal
+      <AddSupplierModal
         open={isAddModalOpen}
         onOpenChange={setIsAddModalOpen}
-        onProductAdded={handleProductAdded}
+        onSupplierAdded={handleSupplierAdded}
       />
     </div>
   )

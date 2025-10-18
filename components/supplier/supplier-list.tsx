@@ -15,7 +15,7 @@ import {
 } from "@tanstack/react-table"
 
 import { Input } from "@/components/ui/input"
-import { Search } from "lucide-react"
+import { Search, Trash, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -26,31 +26,31 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { deleteProduct, deleteMultipleProducts, Product } from "./inventory-action"
+import { deleteSupplier, deleteMultipleSuppliers, Supplier } from "./supplier-action"
 import { toast } from "sonner"
-import { columns } from "./inventory-list-column"
-import { InventoryRowActions } from "./inventory-row-actions"
-import { InventoryDeleteModal } from "./inventory-delete-modal"
-import { InventoryDetailModal } from "./inventory-detail-modal"
-import { EditProductModal } from "./inventory-edit-modal"
-import { Trash, X } from "lucide-react"
+import { columns } from "./supplier-list-column"
+import { SupplierRowActions } from "./supplier-row-actions"
+import { SupplierDeleteModal } from "./supplier-delete-modal"
+import { SupplierDetailModal } from "./supplier-detail-modal"
+import { EditSupplierModal } from "./supplier-edit-modal"
 
-interface InventoryListClientProps {
-  initialProducts: Product[]
+interface SupplierListClientProps {
+  initialSuppliers: Supplier[]
+  onAddSupplier?: () => void
 }
 
-interface InventoryTableMeta extends TableMeta<Product> {
-  handleDeleteProduct: (productId: number) => void
-  handleViewProduct: (productId: number) => void
-  handleEditProduct: (productId: number) => void
+interface SupplierTableMeta extends TableMeta<Supplier> {
+  handleDeleteSupplier: (supplierId: number) => void
+  handleViewSupplier: (supplierId: number) => void
+  handleEditSupplier: (supplierId: number) => void
 }
 
-export function InventoryList({ initialProducts }: InventoryListClientProps) {
+export function SupplierList({ initialSuppliers, onAddSupplier }: SupplierListClientProps) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
-  const [products, setProducts] = React.useState<Product[]>(initialProducts)
+  const [suppliers, setSuppliers] = React.useState<Supplier[]>(initialSuppliers)
 
   // Global filter state for search
   const [globalFilter, setGlobalFilter] = React.useState("")
@@ -59,48 +59,64 @@ export function InventoryList({ initialProducts }: InventoryListClientProps) {
   const [deleteModal, setDeleteModal] = React.useState<{
     open: boolean
     type: 'single' | 'multiple'
-    productId?: number
-    productName?: string
+    supplierId?: number
+    supplierName?: string
   }>({
     open: false,
     type: 'single'
   })
 
-  // Edit modal state
-  const [editModal, setEditModal] = React.useState<{
-    open: boolean
-    product: Product | null
-  }>({
-    open: false,
-    product: null
-  })
-
-  const handleDeleteProduct = (productId: number) => {
-    const product = products.find(p => p.id === productId)
-    setDeleteModal({
-      open: true,
-      type: 'single',
-      productId,
-      productName: product?.name
-    })
-  }
-
   // Detail modal state
   const [detailModal, setDetailModal] = React.useState<{
     open: boolean
-    product: Product | null
+    supplier: Supplier | null
   }>({
     open: false,
-    product: null
+    supplier: null
   })
 
-    // Handle product edit
-  const handleEditProduct = (productId: number) => {
-    const product = products.find(p => p.id === productId)
-    if (product) {
+  // Edit modal state
+  const [editModal, setEditModal] = React.useState<{
+    open: boolean
+    supplier: Supplier | null
+  }>({
+    open: false,
+    supplier: null
+  })
+
+  const handleDeleteSupplier = (supplierId: number) => {
+    const supplier = suppliers.find(s => s.id === supplierId)
+    setDeleteModal({
+      open: true,
+      type: 'single',
+      supplierId,
+      supplierName: supplier?.name
+    })
+  }
+
+  // Handle supplier detail view
+  const handleViewSupplier = (supplierId: number) => {
+    const supplier = suppliers.find(s => s.id === supplierId)
+    if (supplier) {
+      setDetailModal({
+        open: true,
+        supplier
+      })
+    }
+  }
+
+  const handleSupplierUpdated = () => {
+    // Refresh the page to get updated suppliers
+    window.location.reload()
+  }
+
+  // Handle supplier edit
+  const handleEditSupplier = (supplierId: number) => {
+    const supplier = suppliers.find(s => s.id === supplierId)
+    if (supplier) {
       setEditModal({
         open: true,
-        product
+        supplier
       })
     }
   }
@@ -110,77 +126,61 @@ export function InventoryList({ initialProducts }: InventoryListClientProps) {
     setRowSelection({})
   }
 
-  // Handle product detail view
-  const handleViewProduct = (productId: number) => {
-    const product = products.find(p => p.id === productId)
-    if (product) {
-      setDetailModal({
-        open: true,
-        product
-      })
-    }
-  }
-  // Handle product update after edit
-  const handleProductUpdated = () => {
-    // Refresh the page to get updated products
-    window.location.reload()
-  }
-
-  const confirmDeleteProduct = async () => {
-    if (!deleteModal.productId) return
-
-    try {
-      const result = await deleteProduct(deleteModal.productId)
-      if (result.success) {
-        setProducts(products.filter(p => p.id !== deleteModal.productId))
-        toast.success('Produk berhasil dihapus')
-      } else {
-        toast.error(result.error || 'Gagal menghapus produk')
-      }
-    } catch (error) {
-      console.error('Error deleting product:', error)
-      toast.error('Terjadi kesalahan saat menghapus produk')
-    } finally {
-      setDeleteModal({ open: false, type: 'single' })
-    }
-  }
-
-  // Handle multiple product deletion
-  const handleDeleteMultipleProducts = () => {
+  // Handle multiple supplier deletion
+  const handleDeleteMultipleSuppliers = () => {
     const selectedIds = Object.keys(rowSelection).map(id => parseInt(id))
     if (selectedIds.length === 0) return
 
     setDeleteModal({
       open: true,
       type: 'multiple',
-      productId: selectedIds.length
+      supplierId: selectedIds.length
     })
   }
 
-  const confirmDeleteMultipleProducts = async () => {
+  const confirmDeleteSupplier = async () => {
+    if (!deleteModal.supplierId) return
+
+    try {
+      const result = await deleteSupplier(deleteModal.supplierId)
+      if (result.success) {
+        setSuppliers(suppliers.filter(s => s.id !== deleteModal.supplierId))
+        toast.success('Supplier berhasil dihapus')
+      } else {
+        toast.error(result.error || 'Gagal menghapus supplier')
+      }
+    } catch (error) {
+      console.error('Error deleting supplier:', error)
+      toast.error('Terjadi kesalahan saat menghapus supplier')
+    } finally {
+      setDeleteModal({ open: false, type: 'single' })
+    }
+  }
+
+  const confirmDeleteMultipleSuppliers = async () => {
     console.log('Current rowSelection:', rowSelection)
     const selectedIds = Object.keys(rowSelection).map(id => parseInt(id))
     console.log('Parsed selectedIds:', selectedIds)
 
     try {
-      const result = await deleteMultipleProducts(selectedIds)
+      const result = await deleteMultipleSuppliers(selectedIds)
       if (result.success) {
-        setProducts(products.filter(p => !selectedIds.includes(p.id)))
+        setSuppliers(suppliers.filter(s => !selectedIds.includes(s.id)))
         setRowSelection({})
-        toast.success(`${selectedIds.length} produk berhasil dihapus`)
+        toast.success(`${selectedIds.length} supplier berhasil dihapus`)
       } else {
-        toast.error(result.error || 'Gagal menghapus produk terpilih')
+        toast.error(result.error || 'Gagal menghapus supplier terpilih')
       }
     } catch (error) {
-      console.error('Error deleting multiple products:', error)
-      toast.error('Terjadi kesalahan saat menghapus produk terpilih')
+      console.error('Error deleting multiple suppliers:', error)
+      toast.error('Terjadi kesalahan saat menghapus supplier terpilih')
     } finally {
       setDeleteModal({ open: false, type: 'single' })
     }
   }
 
   const table = useReactTable({
-    data: products,
+    data: suppliers,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -192,12 +192,12 @@ export function InventoryList({ initialProducts }: InventoryListClientProps) {
     onRowSelectionChange: setRowSelection,
     onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: "includesString",
-    getRowId: (row) => row.id.toString(), // Gunakan produk.id sebagai row ID
+    getRowId: (row) => row.id.toString(), // Gunakan supplier.id sebagai row ID
     meta: {
-      handleDeleteProduct: handleDeleteProduct,
-      handleViewProduct: handleViewProduct,
-      handleEditProduct: handleEditProduct,
-    } as InventoryTableMeta,
+      handleDeleteSupplier: handleDeleteSupplier,
+      handleViewSupplier: handleViewSupplier,
+      handleEditSupplier: handleEditSupplier,
+    } as SupplierTableMeta,
     state: {
       sorting,
       columnFilters,
@@ -214,7 +214,7 @@ export function InventoryList({ initialProducts }: InventoryListClientProps) {
           <div className="relative flex-1 sm:flex-initial sm:w-[300px]">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Cari produk..."
+              placeholder="Cari supplier..."
               value={globalFilter ?? ""}
               onChange={(event) => setGlobalFilter(String(event.target.value))}
               className="pl-8"
@@ -236,7 +236,7 @@ export function InventoryList({ initialProducts }: InventoryListClientProps) {
             <Button
               variant="destructive"
               size="sm"
-              onClick={handleDeleteMultipleProducts}
+              onClick={handleDeleteMultipleSuppliers}
               className="whitespace-nowrap"
             >
               <Trash className="mr-1 h-4 w-4" />
@@ -274,14 +274,14 @@ export function InventoryList({ initialProducts }: InventoryListClientProps) {
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                   className="cursor-pointer hover:bg-muted/50 focus-within:bg-muted/50"
-                  onClick={() => handleViewProduct(row.original.id)}
+                  onClick={() => handleViewSupplier(row.original.id)}
                   role="button"
                   tabIndex={0}
-                  aria-label={`Klik untuk melihat detail produk ${row.getValue("name")}`}
+                  aria-label={`Klik untuk melihat detail supplier ${row.getValue("name")}`}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
-                      handleViewProduct(row.original.id)
+                      handleViewSupplier(row.original.id)
                     }
                   }}
                 >
@@ -299,7 +299,7 @@ export function InventoryList({ initialProducts }: InventoryListClientProps) {
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  Tidak ada data produk.
+                  Tidak ada data supplier.
                 </TableCell>
               </TableRow>
             )}
@@ -316,14 +316,14 @@ export function InventoryList({ initialProducts }: InventoryListClientProps) {
               className={`border rounded-lg p-4 space-y-3 cursor-pointer hover:bg-muted/50 transition-colors focus-within:bg-muted/50 ${
                 row.getIsSelected() ? 'bg-muted' : ''
               }`}
-              onClick={() => handleViewProduct(row.original.id)}
+              onClick={() => handleViewSupplier(row.original.id)}
               role="button"
               tabIndex={0}
-              aria-label={`Klik untuk melihat detail produk ${row.getValue("name")}`}
+              aria-label={`Klik untuk melihat detail supplier ${row.getValue("name")}`}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault()
-                  handleViewProduct(row.original.id)
+                  handleViewSupplier(row.original.id)
                 }
               }}
             >
@@ -341,57 +341,51 @@ export function InventoryList({ initialProducts }: InventoryListClientProps) {
                   </span>
                 </div>
                 <div onClick={(e) => e.stopPropagation()}>
-                  <InventoryRowActions
-                    product={row.original}
-                    onDetail={() => handleViewProduct(row.original.id)}
-                    onEdit={() => handleEditProduct(row.original.id)}
-                    onDelete={() => handleDeleteProduct(row.original.id)}
+                  <SupplierRowActions
+                    supplier={row.original}
+                    onDetail={() => handleViewSupplier(row.original.id)}
+                    onEdit={() => handleEditSupplier(row.original.id)}
+                    onDelete={() => handleDeleteSupplier(row.original.id)}
                   />
                 </div>
               </div>
 
               {/* Mobile Card Content */}
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-1 gap-2 text-sm">
+                {row.original.contact_person && (
+                  <div>
+                    <span className="text-muted-foreground">Contact Person:</span>
+                    <p className="font-medium">{row.original.contact_person}</p>
+                  </div>
+                )}
+                {row.original.phone && (
+                  <div>
+                    <span className="text-muted-foreground">Telepon:</span>
+                    <p className="font-medium">{row.original.phone}</p>
+                  </div>
+                )}
+                {row.original.email && (
+                  <div>
+                    <span className="text-muted-foreground">Email:</span>
+                    <p className="font-medium">{row.original.email}</p>
+                  </div>
+                )}
+                {row.original.address && (
+                  <div>
+                    <span className="text-muted-foreground">Alamat:</span>
+                    <p className="font-medium">{row.original.address}</p>
+                  </div>
+                )}
                 <div>
-                  <span className="text-muted-foreground">Kode:</span>
-                  <p className="font-medium">{row.getValue("code")}</p>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Kategori:</span>
-                  <p>{row.getValue("category") || "Tidak ada kategori"}</p>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Stok:</span>
-                  <p className={(row.getValue("stock") as number) < 10 ? "text-red-600 font-medium" : ""}>
-                    {row.getValue("stock")}
-                  </p>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Supplier:</span>
-                  <p>{row.getValue("supplier_name") || "Tidak ada supplier"}</p>
-                </div>
-                <div className="col-span-2">
                   <span className="text-muted-foreground">Tanggal Ditambah:</span>
                   <p>{new Date(row.getValue("created_at")).toLocaleDateString("id-ID")}</p>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Harga Beli:</span>
-                  <p>
-                    Rp {new Intl.NumberFormat("id-ID").format(row.getValue("price_buy") as number)}
-                  </p>
-                </div>
-                <div className="col-span-2">
-                  <span className="text-muted-foreground">Harga Jual:</span>
-                  <p>
-                    Rp {new Intl.NumberFormat("id-ID").format(row.getValue("price_sell") as number)}
-                  </p>
                 </div>
               </div>
             </div>
           ))
         ) : (
           <div className="text-center py-8 text-muted-foreground">
-            Tidak ada data produk.
+            Tidak ada data supplier.
           </div>
         )}
       </div>
@@ -451,39 +445,39 @@ export function InventoryList({ initialProducts }: InventoryListClientProps) {
       </div>
 
       {/* Delete Confirmation Modal */}
-      <InventoryDeleteModal
+      <SupplierDeleteModal
         open={deleteModal.open}
         onOpenChange={(open) => setDeleteModal({ ...deleteModal, open })}
         onConfirm={
           deleteModal.type === 'single'
-            ? confirmDeleteProduct
-            : confirmDeleteMultipleProducts
+            ? confirmDeleteSupplier
+            : confirmDeleteMultipleSuppliers
         }
         title={
           deleteModal.type === 'single'
-            ? `Hapus Produk`
-            : `Hapus Produk Terpilih`
+            ? `Hapus Supplier`
+            : `Hapus Supplier Terpilih`
         }
         description={
           deleteModal.type === 'single'
-            ? `Apakah Anda yakin ingin menghapus produk "${deleteModal.productName}"? Tindakan ini tidak dapat dibatalkan.`
-            : `Apakah Anda yakin ingin menghapus ${deleteModal.productId || 0} produk terpilih? Tindakan ini tidak dapat dibatalkan.`
+            ? `Apakah Anda yakin ingin menghapus supplier "${deleteModal.supplierName}"? Tindakan ini tidak dapat dibatalkan.`
+            : `Apakah Anda yakin ingin menghapus ${deleteModal.supplierId || 0} supplier terpilih? Tindakan ini tidak dapat dibatalkan.`
         }
       />
 
       {/* Detail Modal */}
-      <InventoryDetailModal
+      <SupplierDetailModal
         open={detailModal.open}
         onOpenChange={(open) => setDetailModal({ ...detailModal, open })}
-        product={detailModal.product}
-        onEdit={() => detailModal.product && handleEditProduct(detailModal.product.id)}
+        supplier={detailModal.supplier}
+        onEdit={() => detailModal.supplier && handleEditSupplier(detailModal.supplier.id)}
       />
-      {/* Edit Modal */}
-      <EditProductModal
+        {/* Edit Modal */}
+      <EditSupplierModal
         open={editModal.open}
         onOpenChange={(open) => setEditModal({ ...editModal, open })}
-        product={editModal.product}
-        onProductUpdated={handleProductUpdated}
+        supplier={editModal.supplier}
+        onSupplierUpdated={handleSupplierUpdated}
       />
     </div>
   )

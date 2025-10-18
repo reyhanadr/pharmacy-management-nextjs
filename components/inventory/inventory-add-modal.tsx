@@ -202,11 +202,11 @@ export function AddProductModal({ open, onOpenChange, onProductAdded }: AddProdu
             {/* Right Column */}
             <div className="space-y-4">
               <div>
-                <Label className="mb-2" htmlFor="price_buy">Harga Beli *</Label>
+                <Label className="mb-2" htmlFor="price_buy">Harga Beli (Rp) *</Label>
                 <Input
                   id="price_buy"
                   type="number"
-                  step="0.01"
+                  step="0"
                   min="0"
                   value={formData.price_buy}
                   onChange={(e) => handleInputChange("price_buy", e.target.value)}
@@ -216,11 +216,11 @@ export function AddProductModal({ open, onOpenChange, onProductAdded }: AddProdu
               </div>
 
               <div>
-                <Label className="mb-2" htmlFor="price_sell">Harga Jual *</Label>
+                <Label className="mb-2" htmlFor="price_sell">Harga Jual (Rp) *</Label>
                 <Input
                   id="price_sell"
                   type="number"
-                  step="0.01"
+                  step="0"
                   min="0"
                   value={formData.price_sell}
                   onChange={(e) => handleInputChange("price_sell", e.target.value)}

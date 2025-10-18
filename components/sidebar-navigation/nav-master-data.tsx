@@ -1,6 +1,7 @@
 "use client"
 
 import { type LucideIcon } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 import {
   SidebarGroup,
@@ -14,6 +15,8 @@ import {
 export function NavMasterData({
   inventoryItems,
   supplierItems,
+  onOpenAddModal,
+  onOpenAddSupplierModal,
 }: {
   inventoryItems: {
     title: string
@@ -25,20 +28,32 @@ export function NavMasterData({
     url: string
     icon: LucideIcon
   }[]
+  onOpenAddModal?: () => void
+  onOpenAddSupplierModal?: () => void
 }) {
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Master Data</SidebarGroupLabel>
+      <SidebarGroupLabel>Master Data (Inventory)</SidebarGroupLabel>
       <SidebarGroupContent>
         {/* Inventory Section */}
         <SidebarMenu>
           {inventoryItems.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild tooltip={item.title}>
-                <a href={item.url}>
-                  <item.icon />
-                  <span>{item.title}</span>
-                </a>
+                {item.title === "Tambah Barang Baru" && onOpenAddModal ? (
+                  <button
+                    onClick={onOpenAddModal}
+                    className="flex w-full items-center gap-2 px-2 py-1.5 text-left text-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground cursor-pointer"
+                  >
+                    <item.icon />
+                    <span>{item.title}</span>
+                  </button>
+                ) : (
+                  <a href={item.url}>
+                    <item.icon />
+                    <span>{item.title}</span>
+                  </a>
+                )}
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
@@ -49,10 +64,20 @@ export function NavMasterData({
           {supplierItems.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild tooltip={item.title}>
-                <a href={item.url}>
-                  <item.icon />
-                  <span>{item.title}</span>
-                </a>
+                {item.title === "Tambah Supplier" && onOpenAddSupplierModal ? (
+                  <button
+                    onClick={onOpenAddSupplierModal}
+                    className="flex w-full items-center gap-2 px-2 py-1.5 text-left text-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground cursor-pointer"
+                  >
+                    <item.icon />
+                    <span>{item.title}</span>
+                  </button>
+                ) : (
+                  <a href={item.url}>
+                    <item.icon />
+                    <span>{item.title}</span>
+                  </a>
+                )}
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}

@@ -89,7 +89,7 @@ export const data = {
     // Supplier Module
     {
       title: "Tambah Supplier",
-      url: "/supplier/add-supplier",
+      url: "#", // Modal will be opened instead of navigating to a page
       icon: UserPlus,
     },
     // {
