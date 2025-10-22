@@ -7,7 +7,7 @@ import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { SiteHeader } from "@/components/layout/header"
 import { AppSidebar } from "@/components/sidebar/app-sidebar"
 import { Button } from "@/components/ui/button"
-import { Plus } from "lucide-react"
+import { UserPlus  } from "lucide-react"
 import type { User } from "@/components/manage-users/manage-users-action"
 
 interface ManageUserPageClientProps {
@@ -48,8 +48,8 @@ export function ManageUsersPageClient({ initialUsers, currentUserId }: ManageUse
                         className="cursor-pointer"
                         onClick={() => setIsAddModalOpen(true)}
                       >
-                        <Plus className="mr-1 h-4 w-4" />
-                        Tambah Pegawai
+                        <UserPlus  className="h-4 w-4" />
+                          Pegawai
                       </Button>
                     </div>
                   </div>

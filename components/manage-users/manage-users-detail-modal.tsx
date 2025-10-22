@@ -128,7 +128,7 @@ export function ManageUsersDetailModal({
                   <div className="flex items-center gap-2">
                     <Shield className="h-4 w-4 text-muted-foreground" />
                     <div>
-                      <span className="text-sm font-medium text-muted-foreground block">Role:</span>
+                      <span className="text-sm font-medium text-muted-foreground block mb-1">Role:</span>
                       <UserRoleBadge role={user.role} />
                     </div>
                   </div>

@@ -525,7 +525,11 @@ export function ManageUsersList({ initialUsers, currentUserId }: ManageUsersList
                 </div>
                 <div>
                   <span className="text-muted-foreground">Email:</span>
-                  <p className="font-medium">{row.getValue("email")}</p>
+                  <p className="font-medium" title={row.getValue("email") as string}>
+                    {(row.getValue("email") as string).length > 15
+                      ? `${(row.getValue("email") as string).substring(0, 15)}...`
+                      : (row.getValue("email") as string)}
+                  </p>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Status:</span>
