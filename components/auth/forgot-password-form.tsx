@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AuthError } from "@supabase/supabase-js";
 import { motion } from "framer-motion";
-import createClient from "@/utils/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Mail, ChevronRight, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { requestPasswordReset } from "./auth.action";
 
 export function ForgotPasswordForm() {
   const [email, setEmail] = useState("");
@@ -18,7 +17,6 @@ export function ForgotPasswordForm() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const router = useRouter();
-  const supabase = createClient();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,20 +24,17 @@ export function ForgotPasswordForm() {
     setError(null);
 
     try {
-      // Use the site URL from environment variables or fallback to the current origin
-      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
-      const redirectTo = `${siteUrl}/auth/reset-password`;
-
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo,
-      });
-
-      if (error) throw error;
+      const result = await requestPasswordReset(email);
+      
+      if (result.error) {
+        setError(result.error);
+        return;
+      }
       
       setSuccess(true);
     } catch (error) {
-      const message = error instanceof AuthError ? error.message : 'Terjadi kesalahan. Silakan coba lagi.';
-      setError(message);
+      console.error('Error in handleSubmit:', error);
+      setError('Terjadi kesalahan tak terduga. Silakan coba lagi nanti.');
     } finally {
       setIsLoading(false);
     }

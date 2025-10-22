@@ -16,6 +16,10 @@ import {
   Wallet,
   Shield,
   Database,
+  ShoppingCart,
+  Package,
+  Receipt,
+  TrendingDown,
 } from "lucide-react"
 
 export const data = {
@@ -92,20 +96,47 @@ export const data = {
       url: "#", // Modal will be opened instead of navigating to a page
       icon: UserPlus,
     },
-    // {
-    //   title: "Update Supplier",
-    //   url: "/supplier/update-supplier",
-    //   icon: Edit,
-    // },
-    // {
-    //   title: "Hapus Supplier",
-    //   url: "/supplier/delete-supplier",
-    //   icon: Trash2,
-    // },
     {
       title: "Lihat Daftar Supplier",
       url: "/supplier/supplier-list",
       icon: Eye,
+    },
+    // Purchase Management
+    {
+      title: "Buat Purchase Order",
+      url: "/supplier/manage-purchase-order/create-purchase-order",
+      icon: ShoppingCart,
+    },
+    {
+      title: "Kelola Purchase Order",
+      url: "/supplier/manage-purchase-order",
+      icon: Package,
+    },
+    // {
+    //   title: "Riwayat Pembelian",
+    //   url: "/supplier/purchase-history",
+    //   icon: History,
+    // },
+    // {
+    //   title: "Invoice Supplier",
+    //   url: "/supplier/supplier-invoices",
+    //   icon: Receipt,
+    // },
+    // Stock Out Management
+    // {
+    //   title: "Pengeluaran Barang",
+    //   url: "/supplier/stock-out",
+    //   icon: TrendingDown,
+    // },
+    // {
+    //   title: "Alasan Pengeluaran",
+    //   url: "/supplier/out-reasons",
+    //   icon: AlertTriangle,
+    // },
+    {
+      title: "Laporan Pengeluaran",
+      url: "/supplier/out-reports",
+      icon: BarChart3,
     },
   ],
   navSecondary: [
@@ -123,7 +154,7 @@ export const data = {
   navAdmin: [
     // Admin Module
     {
-      name: "Kelola User",
+      name: "Kelola Pegawai",
       url: "/admin/manage-users",
       icon: UserCog,
     },

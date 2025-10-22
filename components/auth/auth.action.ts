@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
 import { createClient } from '@/utils/supabase/server'
+import { AuthError } from '@supabase/supabase-js'
 
 export type UserProfile = {
   id: string;
@@ -89,6 +90,77 @@ export async function login(formData: FormData): Promise<ActionResult> {
   revalidatePath('/', 'layout');
   redirect('/');
   return { success: true }; // This line is a fallback and won't be reached
+}
+
+export async function requestPasswordReset(email: string): Promise<ActionResult> {
+  const supabase = await createClient();
+
+  try {
+    // Check if email exists in auth.users
+
+
+    // Check if user has a profile
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('email', email)
+      .single();
+
+    if (profileError && profileError.code !== 'PGRST116') {
+      console.error('Error checking profile:', profileError);
+      return { error: 'Terjadi kesalahan saat memeriksa profil. Silakan coba lagi.' };
+    }
+
+    if (!profile) {
+      return { error: 'Profil pengguna tidak ditemukan. Silakan hubungi administrator.' };
+    }
+
+    // If we get here, both auth user and profile exist
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL || 'http://localhost:3000';
+    const redirectTo = `${siteUrl}/auth/reset-password`;
+
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo,
+    });
+
+    if (resetError) {
+      console.error('Error sending reset email:', resetError);
+      return { error: 'Gagal mengirim email reset password. Silakan coba lagi.' };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Unexpected error in requestPasswordReset:', error);
+    return { error: 'Terjadi kesalahan tak terduga. Silakan coba lagi nanti.' };
+  }
+}
+
+export async function forgotPassword(formData: FormData): Promise<UserProfile | null> {
+  const supabase = await createClient();
+
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      return null;
+    }
+
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+
+    if (error) {
+      console.error('Error fetching user profile:', error);
+      return null;
+    }
+
+    return profile as UserProfile;
+  } catch (error) {
+    console.error('Error getting current user:', error);
+    return null;
+  }
 }
 
 // export async function signInWithGoogle(): Promise<ActionResult> {

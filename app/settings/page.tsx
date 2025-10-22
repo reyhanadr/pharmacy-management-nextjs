@@ -7,7 +7,7 @@ import {
   SidebarInset,
   SidebarProvider,
 } from '@/components/ui/sidebar'
-
+import { createClient } from '@/utils/supabase/server';
 
 export type Profile = {
   username?: string;
@@ -17,9 +17,11 @@ export type Profile = {
 };
 
 export default async function AccountSettingsPage() {
-  const { user, profile, hasPassword } = await getUserData();
-  
-  if (!user) {
+  const profile = await getUserData();
+  const supabase = await createClient();
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !user || !profile) {
     redirect('/login');
   }
 
@@ -33,7 +35,16 @@ export default async function AccountSettingsPage() {
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <SettingsClient user={user} profile={profile} hasPassword={hasPassword} />
+              <SettingsClient
+                user={user}
+                profile={{
+                  username: profile.username,
+                  display_name: profile.full_name,
+                  bio: '', // Add bio field to UserProfile if needed
+                  avatar_url: null // Add avatar_url field to UserProfile if needed
+                }}
+                hasPassword={true} // Since password functionality was removed, default to true
+              />
             </div>
           </div>
         </div>

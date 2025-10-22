@@ -32,6 +32,7 @@ export function NavMasterData({
   onOpenAddSupplierModal?: () => void
 }) {
   return (
+    <>
     <SidebarGroup>
       <SidebarGroupLabel>Master Data (Inventory)</SidebarGroupLabel>
       <SidebarGroupContent>
@@ -58,7 +59,11 @@ export function NavMasterData({
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
-
+      </SidebarGroupContent>
+    </SidebarGroup>
+    <SidebarGroup>
+      <SidebarGroupLabel>Master Data (Supplier)</SidebarGroupLabel>
+      <SidebarGroupContent>
         {/* Supplier Section */}
         <SidebarMenu>
           {supplierItems.map((item) => (
@@ -84,5 +89,7 @@ export function NavMasterData({
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>
+    </>
+
   )
 }

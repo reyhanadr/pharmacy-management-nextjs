@@ -240,6 +240,9 @@ export function AddProductModal({ open, onOpenChange, onProductAdded }: AddProdu
                   placeholder="0"
                   required
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  Jika produk baru dari supplier baru, isi dengan 0. Stok akan bertambah setelah purchase order diterima.
+                </p>
               </div>
 
               <div>
