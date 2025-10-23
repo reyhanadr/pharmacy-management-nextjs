@@ -211,7 +211,7 @@ export function ManageUsersDetailModal({
                 ) : (
                   <>
                     {banStatus.isBanned ? <ShieldCheck className="h-4 w-4" /> : <ShieldOff className="h-4 w-4" />}
-                    {banStatus.isBanned ? 'Unban Pengguna' : 'Ban Pengguna'}
+                    {banStatus.isBanned ? 'Aktifkan' : 'Nonaktifkan'}
                   </>
                 )}
               </Button>
@@ -223,7 +223,7 @@ export function ManageUsersDetailModal({
               disabled={isCurrentUser}
             >
               
-              {isCurrentUser ? <PencilOff className="h-4 w-4" /> : <><Edit className="mr-2 h-4 w-4" /> Edit Pengguna</>}
+              {isCurrentUser ? <PencilOff className="h-4 w-4" /> : <><Edit className="h-4 w-4" /> Edit </>}
             </Button>
           </div>
         </div>

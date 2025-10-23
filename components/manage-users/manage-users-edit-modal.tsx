@@ -251,10 +251,11 @@ export function ManageUsersEditModal({
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isLoading}
+              className='cursor-pointer'
             >
               Batal
             </Button>
-            <Button type="submit" disabled={isLoading}>
+            <Button type="submit" disabled={isLoading} className='cursor-pointer'>
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

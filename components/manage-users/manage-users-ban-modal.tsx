@@ -67,12 +67,12 @@ export function ManageUsersBanModal({
                 {isBanning ? (
                   <>
                     <ShieldOff className="h-4 w-4" />
-                    Blokir
+                    Nonaktifkan
                   </>
                 ) : (
                   <>
                     <Shield className="h-4 w-4" />
-                    Buka Blokir
+                    Aktifkan
                   </>
                 )}
               </>

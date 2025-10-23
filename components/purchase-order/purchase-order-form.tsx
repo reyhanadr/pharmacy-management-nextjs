@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Trash2, Search, PackagePlus } from 'lucide-react';
+import { Plus, Trash2, Search, PackagePlus, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,6 +20,7 @@ import {
 } from './purchase-order-action';
 import { GoodsReceivedDialog } from './goods-received-dialog';
 import { AddProductModal } from '@/components/inventory/inventory-add-modal';
+import { AddSupplierModal } from '@/components/supplier/supplier-add-modal';
 import type { UserProfile } from '@/components/auth/auth.action';
 interface PurchaseOrderFormProps {
   userData: UserProfile;
@@ -37,7 +38,8 @@ export function PurchaseOrderForm({ userData, onSuccess }: PurchaseOrderFormProp
   const [error, setError] = useState<string | null>(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showAddProductModal, setShowAddProductModal] = useState(false);
-  const [supplierHasProducts, setSupplierHasProducts] = useState(true);
+  const [showAddSupplierModal, setShowAddSupplierModal] = useState(false);
+
   useEffect(() => {
     loadSuppliers();
     loadProducts();
@@ -49,14 +51,8 @@ export function PurchaseOrderForm({ userData, onSuccess }: PurchaseOrderFormProp
       loadProducts(parseInt(selectedSupplier));
     } else {
       setProducts([]);
-      setSupplierHasProducts(true);
     }
   }, [selectedSupplier]);
-
-  // Check if supplier has products after loading
-  useEffect(() => {
-    setSupplierHasProducts(products.length > 0);
-  }, [products]);
 
   const loadSuppliers = async () => {
     try {
@@ -81,6 +77,11 @@ export function PurchaseOrderForm({ userData, onSuccess }: PurchaseOrderFormProp
     if (selectedSupplier) {
       loadProducts(parseInt(selectedSupplier));
     }
+  };
+
+  const handleSupplierAdded = () => {
+    // Refresh suppliers after adding new supplier
+    loadSuppliers();
   };
 
   const filteredProducts = products.filter(product =>
@@ -139,7 +140,7 @@ export function PurchaseOrderForm({ userData, onSuccess }: PurchaseOrderFormProp
     e.preventDefault();
 
     if (!selectedSupplier || items.length === 0) {
-      setError('Please select a supplier and add at least one item');
+      setError('Pilih supplier dan tambahkan minimal satu item');
       return;
     }
 
@@ -154,7 +155,7 @@ export function PurchaseOrderForm({ userData, onSuccess }: PurchaseOrderFormProp
     try {
       // Get current user ID from Supabase auth
       if (!userData) {
-        throw new Error('You must be logged in to create a purchase order');
+        throw new Error('Anda harus masuk untuk membuat purchase order');
       }
 
       await createPurchaseOrder(
@@ -186,9 +187,9 @@ export function PurchaseOrderForm({ userData, onSuccess }: PurchaseOrderFormProp
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Create Purchase Order</CardTitle>
+          <CardTitle>Buat Purchase Order Baru</CardTitle>
           <CardDescription>
-            Select a supplier and add products to create a new purchase order
+            Pilih supplier terlebih dahulu, kemudian pilih produk dari supplier tersebut. Jika belum ada supplier, tambahkan supplier baru. Jika supplier belum memiliki produk, tambahkan produk terlebih dahulu.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -196,30 +197,41 @@ export function PurchaseOrderForm({ userData, onSuccess }: PurchaseOrderFormProp
             {/* Supplier Selection */}
             <div className="space-y-2">
               <Label htmlFor="supplier">Supplier</Label>
-              <Select value={selectedSupplier} onValueChange={setSelectedSupplier}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a supplier" />
-                </SelectTrigger>
-                <SelectContent>
-                  {suppliers.map((supplier) => (
-                    <SelectItem key={supplier.id} value={supplier.id.toString()}>
-                      {supplier.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex gap-1 items-center">
+                  <Select value={selectedSupplier} onValueChange={setSelectedSupplier}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pilih supplier" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {suppliers.map((supplier) => (
+                        <SelectItem key={supplier.id} value={supplier.id.toString()}>
+                          {supplier.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowAddSupplierModal(true)}
+                  className="cursor-pointer"
+                >
+                  <UserPlus className="h-4 w-4"/>
+                </Button>
+              </div>
             </div> 
 
             {/* Product Search and Selection */}
             <div className="space-y-4">
               <div className="flex gap-2">
                 <div className="flex-1">
-                  <Label className='mb-2' htmlFor="search">Search Products</Label>
+                  <Label className='mb-2' htmlFor="search">Cari Produk</Label>
                   <div className="relative">
                     <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
                       id="search"
-                      placeholder="Search by product name or code..."
+                      placeholder="Cari nama atau kode produk..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="pl-10"
@@ -231,49 +243,51 @@ export function PurchaseOrderForm({ userData, onSuccess }: PurchaseOrderFormProp
               {/* Product List */}
               <div className="border rounded-md max-h-48 overflow-y-auto">
                 <div className="p-4 space-y-2">
-                  {selectedSupplier && !supplierHasProducts ? (
-                    <div className="text-center py-8">
-                      <p className="text-sm text-gray-500 mb-4">
-                        Anda belum mempunyai produk dari supplier: {suppliers.find(s => s.id === parseInt(selectedSupplier))?.name}
-                      </p>
-                      <Button
-                        type="button"
-                        onClick={() => setShowAddProductModal(true)}
-                        variant="default"
-                        className='cursor-pointer'
-                        // className="bg-blue-600 hover:bg-blue-700"
-                      >
-                        <PackagePlus className="h-4 w-4 mr-2" />
-                        Tambah Produk Baru
-                      </Button>
-                    </div>
-                  ) : filteredProducts.length === 0 ? (
-                    <p className="text-sm text-gray-500 text-center py-4">
-                      No products found
-                    </p>
-                  ) : selectedSupplier ? (
-                    filteredProducts.map((product) => (
-                      <div
-                        key={product.id}
-                        className="flex items-center justify-between p-2 border rounded hover:bg-gray-50 dark:hover:bg-gray-700"
-                      >
-                        <div className="flex-1">
-                          <div className="font-medium">{product.name}</div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400">
-                            Code: {product.code} | Stock: {product.stock} | Buy Price: Rp {product.price_buy.toLocaleString()}
+                  {selectedSupplier ? (
+                    <>
+                      {/* Product List */}
+                      {filteredProducts.length === 0 ? (
+                        <p className="text-sm text-gray-500 text-center mt-4">
+                          Belum ada produk dari supplier: {suppliers.find(s => s.id === parseInt(selectedSupplier))?.name}
+                        </p>
+                      ) : (
+                        filteredProducts.map((product) => (
+                          <div
+                            key={product.id}
+                            className="flex items-center justify-between p-2 border rounded hover:bg-gray-50 dark:hover:bg-gray-700"
+                          >
+                            <div className="flex-1">
+                              <div className="font-medium">{product.name}</div>
+                              <div className="text-sm text-gray-500 dark:text-gray-400">
+                                Code: {product.code} | Stock: {product.stock} | Buy Price: Rp {product.price_buy.toLocaleString()}
+                              </div>
+                            </div>
+                            <Button
+                              type="button"
+                              size="sm"
+                              onClick={() => addItem(product)}
+                              className="ml-2 cursor-pointer"
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
                           </div>
-                        </div>
+                        ))
+                      )}
+
+                      {/* Add Product Button - Always show when supplier is selected */}
+                      <div className="pb-3 pt-3 flex justify-center">
                         <Button
                           type="button"
-                          size="sm"
-                          onClick={() => addItem(product)}
-                          className="ml-2 cursor-pointer"
+                          onClick={() => setShowAddProductModal(true)}
+                          variant="outline"
+                          className='cursor-pointer'
                         >
-                          <Plus className="h-4 w-4" />
+                          <PackagePlus className="h-4 w-4" />
+                          Tambah Produk Baru
                         </Button>
                       </div>
-                    ))
-                  ) : (
+                    </>
+                    ) : (
                     <p className="text-sm text-gray-500 text-center py-4">
                       Pilih Supplier Terlebih Dahulu
                     </p>
@@ -285,17 +299,17 @@ export function PurchaseOrderForm({ userData, onSuccess }: PurchaseOrderFormProp
             {/* Items Table */}
             {items.length > 0 && (
               <div className="space-y-4">
-                <Label>Order Items</Label>
+                <Label>Item Pesanan</Label>
                 <div className="border rounded-md">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="text-left">Product</TableHead>
-                        <TableHead className="text-left">Code</TableHead>
+                        <TableHead className="text-left">Produk</TableHead>
+                        <TableHead className="text-left">Kode</TableHead>
                         <TableHead className="text-center">Qty</TableHead>
-                        <TableHead className="text-right">Price</TableHead>
+                        <TableHead className="text-right">Harga</TableHead>
                         <TableHead className="text-right">Total</TableHead>
-                        <TableHead className="text-center">Action</TableHead>
+                        <TableHead className="text-center">Aksi</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -360,7 +374,7 @@ export function PurchaseOrderForm({ userData, onSuccess }: PurchaseOrderFormProp
             {/* Submit Button */}
             <div className="flex justify-end">
               <Button className='cursor-pointer' type="submit" disabled={isLoading || !selectedSupplier || items.length === 0}>
-                {isLoading ? 'Creating...' : 'Create Purchase Order'}
+                {isLoading ? 'Membuat...' : 'Buat Purchase Order'}
               </Button>
             </div>
           </form>
@@ -381,6 +395,13 @@ export function PurchaseOrderForm({ userData, onSuccess }: PurchaseOrderFormProp
         open={showAddProductModal}
         onOpenChange={setShowAddProductModal}
         onProductAdded={handleProductAdded}
+      />
+
+      {/* Add Supplier Modal */}
+      <AddSupplierModal
+        open={showAddSupplierModal}
+        onOpenChange={setShowAddSupplierModal}
+        onSupplierAdded={handleSupplierAdded}
       />
     </div>
   );

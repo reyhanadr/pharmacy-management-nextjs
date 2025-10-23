@@ -179,6 +179,9 @@ export function AddProductModal({ open, onOpenChange, onProductAdded }: AddProdu
                   placeholder="Masukkan kode produk"
                   required
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  Gunakan format kode yang mudah diingat. Contoh: untuk produk &quot;Ibuprofen&quot; gunakan kode &quot;IBUP001&quot;, &quot;Paracetamol&quot; gunakan &quot;PARA001&quot;.
+                </p>
               </div>
 
               <div>
@@ -188,7 +191,8 @@ export function AddProductModal({ open, onOpenChange, onProductAdded }: AddProdu
                     <SelectValue placeholder="Pilih kategori" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Obat">Obat</SelectItem>
+                    <SelectItem value="Obat Resep">Obat Resep</SelectItem>
+                    <SelectItem value="Obat Bebas">Obat Bebas</SelectItem>
                     <SelectItem value="Vitamin">Vitamin</SelectItem>
                     <SelectItem value="Suplemen">Suplemen</SelectItem>
                     <SelectItem value="Alat Kesehatan">Alat Kesehatan</SelectItem>

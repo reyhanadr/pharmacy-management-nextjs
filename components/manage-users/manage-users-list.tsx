@@ -241,7 +241,7 @@ export function ManageUsersList({ initialUsers, currentUserId }: ManageUsersList
         : await unbanUser(banModal.userId)
 
       if (result.success) {
-        toast.success(banModal.isBanning ? 'Pengguna berhasil dibanned' : 'Pengguna berhasil dibuka bannednya')
+        toast.success(banModal.isBanning ? 'Pengguna berhasil dinonaktifkan' : 'Pengguna berhasil diaktifkan')
         // Update ban status in local state instead of refreshing page
         await updateBanStatus(banModal.userId)
         window.location.reload()
@@ -648,10 +648,10 @@ export function ManageUsersList({ initialUsers, currentUserId }: ManageUsersList
         open={banModal.open}
         onOpenChange={(open) => setBanModal({ ...banModal, open })}
         onConfirm={confirmBanUser}
-        title={banModal.isBanning ? `Ban Pengguna` : `Unban Pengguna`}
+        title={banModal.isBanning ? `Nonaktifkan Pengguna` : `Aktifkan Pengguna`}
         description={banModal.isBanning
-          ? `Apakah Anda yakin ingin membanned pengguna "${banModal.userName}"? Pengguna tidak akan dapat login selama durasi ban.`
-          : `Apakah Anda yakin ingin membuka banned pengguna "${banModal.userName}"? Pengguna akan dapat login kembali.`
+          ? `Apakah Anda yakin ingin menonaktifkan pengguna "${banModal.userName}"? Pengguna tidak akan dapat login selama durasi nonaktif.`
+          : `Apakah Anda yakin ingin mengaktifkan pengguna "${banModal.userName}"? Pengguna akan dapat login kembali.`
         }
         userName={banModal.userName || ''}
         isBanning={banModal.isBanning}

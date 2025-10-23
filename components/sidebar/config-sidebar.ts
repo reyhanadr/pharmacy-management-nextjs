@@ -35,16 +35,16 @@ export const data = {
       url: "/cashier/new-transaction",
       icon: Plus,
     },
-    {
-      title: "Proses Pembayaran",
-      url: "/cashier/process-payment",
-      icon: CreditCard,
-    },
-    {
-      title: "Batalkan Transaksi",
-      url: "/cashier/cancel-transaction",
-      icon: XCircle,
-    },
+    // {
+    //   title: "Proses Pembayaran",
+    //   url: "/cashier/process-payment",
+    //   icon: CreditCard,
+    // },
+    // {
+    //   title: "Batalkan Transaksi",
+    //   url: "/cashier/cancel-transaction",
+    //   icon: XCircle,
+    // },
     {
       title: "Lihat Riwayat Transaksi",
       url: "/cashier/transaction-history",

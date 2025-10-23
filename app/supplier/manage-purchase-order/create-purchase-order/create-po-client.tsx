@@ -37,7 +37,7 @@ export function CreatePurchaseOrderClient({ userData }: CreatePurchaseOrderClien
                     <div>
                       <h1 className="text-2xl font-bold tracking-tight">Buat Purchase Order</h1>
                       <p className="text-muted-foreground">
-                        Buat purchase order baru
+                        Buat purchase order baru dengan mudah. Pilih supplier terlebih dahulu, kemudian pilih produk dari supplier yang dipilih untuk melengkapi order.
                       </p>
                     </div>
                     {/* <div className="flex items-center gap-2">

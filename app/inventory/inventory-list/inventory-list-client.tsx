@@ -7,7 +7,7 @@ import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { SiteHeader } from "@/components/layout/header"
 import { AppSidebar } from "@/components/sidebar/app-sidebar"
 import { Button } from "@/components/ui/button"
-import { Plus } from "lucide-react"
+import { PackagePlus  } from "lucide-react"
 import type { Product } from "@/components/inventory/inventory-action"
 
 interface InventoryListPageClientProps {
@@ -45,7 +45,7 @@ export function InventoryListPageClient({ initialProducts }: InventoryListPageCl
                         variant="default"
                         onClick={() => setIsAddModalOpen(true)}
                       >
-                        <Plus className="mr-1 h-4 w-4" />
+                        <PackagePlus className="mr-1 h-4 w-4" />
                         Produk
                       </Button>
                     </div>

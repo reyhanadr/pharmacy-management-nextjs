@@ -32,24 +32,26 @@ export function ManageUsersPageClient({ initialUsers, currentUserId }: ManageUse
         <div className="flex flex-1">
           <AppSidebar />
           <SidebarInset>
-            <div className="flex flex-1 flex-col ">
+            <div className="flex flex-1 flex-col">
               <div className="@container/main flex flex-1 flex-col gap-2">
-                <div className="flex flex-col gap-4 py-4 px-6 md:gap-6 md:py-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h1 className="text-2xl font-bold tracking-tight">Daftar Pegawai</h1>
-                      <p className="text-muted-foreground">
-                        Kelola pegawai Anda
+                <div className="flex flex-col gap-4 py-4 px-4 sm:px-6 md:gap-6 md:py-6">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:gap-4">
+                    <div className="flex-1 min-w-0">
+                      <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
+                        Daftar Pegawai
+                      </h1>
+                      <p className="mt-1 text-sm sm:text-base text-muted-foreground leading-relaxed">
+                        Kelola pegawai Anda dengan mudah. Lihat daftar lengkap, tambah, edit informasi, dan kelola status aktif pegawai anda.
                       </p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 sm:gap-3 mt-2 sm:mt-0">
                       <Button
                         variant="default"
-                        className="cursor-pointer"
+                        className="cursor-pointer w-full sm:w-auto"
                         onClick={() => setIsAddModalOpen(true)}
                       >
-                        <UserPlus  className="h-4 w-4" />
-                          Pegawai
+                        <UserPlus className="h-4 w-4" />
+                        Pegawai/Admin Baru
                       </Button>
                     </div>
                   </div>

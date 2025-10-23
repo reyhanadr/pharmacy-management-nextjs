@@ -22,9 +22,9 @@ export function ManagePurchaseOrderClient({ initialPurchaseOrders }: { initialPu
                 <div className="flex flex-col gap-4 py-4 px-6 md:gap-6 md:py-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h1 className="text-2xl font-bold tracking-tight">Purchase Order History</h1>
+                      <h1 className="text-2xl font-bold tracking-tight">Daftar Purchase Order </h1>
                       <p className="text-muted-foreground">
-                        Purchase order history
+                        Kelola purchase order dengan mudah. Lihat daftar lengkap beserta status terkini, serta akses dan cetak invoice sesuai kebutuhan.
                       </p>
                     </div>
                   </div>

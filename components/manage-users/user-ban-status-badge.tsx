@@ -10,7 +10,7 @@ export function UserBanStatusBadge({ isBanned }: { isBanned: boolean }) {
         : 'bg-green-100 text-green-800 border-green-300'
     }`}>
       {isBanned ? <ShieldOff className="w-3 h-3 mr-1" /> : <ShieldCheck className="w-3 h-3 mr-1" />}
-      {isBanned ? 'Dibanned' : 'Aktif'}
+      {isBanned ? 'Nonaktif' : 'Aktif'}
     </span>
   )
 }
