@@ -138,7 +138,48 @@ export async function updateProduct(productId: number, productData: {
   const supabase = await createClient()
 
   try {
-    const { error } = await supabase
+    // Check if user is authenticated
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+
+    if (userError || !user) {
+      console.error('User not authenticated:', userError)
+      return { success: false, error: 'User not authenticated' }
+    }
+
+    // Check user role from profiles table
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (profileError || !profile) {
+      console.error('Profile not found:', profileError)
+      return { success: false, error: 'User profile not found' }
+    }
+
+    console.log('Updating product', productId, 'for user:', user.id, 'with role:', profile.role)
+
+    // Check if user has permission to update products
+    if (profile.role !== 'owner') {
+      console.error('Access denied: User role', profile.role, 'cannot update products')
+      return { success: false, error: 'Access denied: Insufficient permissions to update products' }
+    }
+
+    // First check if the product exists and user has access
+    const { data: existingProduct, error: checkError } = await supabase
+      .from('products')
+      .select('id')
+      .eq('id', productId)
+      .single()
+
+    if (checkError || !existingProduct) {
+      console.error('Product not found or access denied:', checkError)
+      return { success: false, error: 'Product not found or access denied' }
+    }
+
+    // Update the product
+    const { data, error } = await supabase
       .from('products')
       .update({
         name: productData.name,
@@ -151,6 +192,7 @@ export async function updateProduct(productId: number, productData: {
         updated_at: new Date().toISOString(),
       })
       .eq('id', productId)
+      .select()
 
     if (error) {
       console.error('Error updating product:', error)
@@ -174,6 +216,47 @@ export async function deleteProduct(productId: number): Promise<{ success: boole
   const supabase = await createClient()
 
   try {
+    // Check if user is authenticated
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+
+    if (userError || !user) {
+      console.error('User not authenticated:', userError)
+      return { success: false, error: 'User not authenticated' }
+    }
+
+    // Check user role from profiles table
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (profileError || !profile) {
+      console.error('Profile not found:', profileError)
+      return { success: false, error: 'User profile not found' }
+    }
+
+    console.log('Deleting product', productId, 'for user:', user.id, 'with role:', profile.role)
+
+    // Check if user has permission to delete products
+    if (profile.role !== 'owner') {
+      console.error('Access denied: User role', profile.role, 'cannot delete products')
+      return { success: false, error: 'Access denied: Insufficient permissions to delete products' }
+    }
+
+    // First check if the product exists and user has access
+    const { data: existingProduct, error: checkError } = await supabase
+      .from('products')
+      .select('id')
+      .eq('id', productId)
+      .single()
+
+    if (checkError || !existingProduct) {
+      console.error('Product not found or access denied:', checkError)
+      return { success: false, error: 'Product not found or access denied' }
+    }
+
+    // Delete without select to avoid RLS issues
     const { error } = await supabase
       .from('products')
       .delete()
@@ -181,8 +264,10 @@ export async function deleteProduct(productId: number): Promise<{ success: boole
 
     if (error) {
       console.error('Error deleting product:', error)
-      return { success: false, error: 'Gagal menghapus produk' }
+      return { success: false, error: error.message }
     }
+
+    console.log('Product deleted successfully')
 
     revalidatePath('/inventory/inventory-list')
     return { success: true }
@@ -195,20 +280,43 @@ export async function deleteProduct(productId: number): Promise<{ success: boole
 export async function deleteMultipleProducts(productIds: number[]): Promise<{ success: boolean; error?: string }> {
   const supabase = await createClient()
 
-  console.log('Attempting to delete products with IDs:', productIds)
-
   try {
-    const { data, error } = await supabase
+    // Check if user is authenticated
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+
+    if (userError || !user) {
+      console.error('User not authenticated:', userError)
+      return { success: false, error: 'User not authenticated' }
+    }
+
+    // Check user role from profiles table
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (profileError || !profile) {
+      console.error('Profile not found:', profileError)
+      return { success: false, error: 'User profile not found' }
+    }
+
+    console.log('Deleting products', productIds, 'for user:', user.id, 'with role:', profile.role)
+
+    // Check if user has permission to delete products
+    if (profile.role !== 'owner') {
+      console.error('Access denied: User role', profile.role, 'cannot delete products')
+      return { success: false, error: 'Access denied: Insufficient permissions to delete products' }
+    }
+
+    const { error } = await supabase
       .from('products')
       .delete()
       .in('id', productIds)
-      .select()
-
-    console.log('Supabase response:', { data, error })
 
     if (error) {
       console.error('Error deleting multiple products:', error)
-      return { success: false, error: 'Gagal menghapus produk terpilih' }
+      return { success: false, error: error.message }
     }
 
     console.log('Products deleted successfully')

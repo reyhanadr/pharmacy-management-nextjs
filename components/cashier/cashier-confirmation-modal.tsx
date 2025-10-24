@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { CreditCard, DollarSign, Smartphone } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-
+import {formatCurrency} from "@/components/utils/format-currency"
 interface TransactionItem {
   product_id: number
   product_name: string
@@ -75,11 +75,11 @@ export function TransactionConfirmationModal({
                 <div className="flex-1">
                   <div className="font-medium">{item.product_name}</div>
                   <div className="text-gray-500 dark:text-gray-400">
-                    {item.quantity} x Rp {item.price_sell.toLocaleString()}
+                    {item.quantity} x {formatCurrency(item.price_sell)}
                   </div>
                 </div>
                 <div className="font-medium">
-                  Rp {item.total.toLocaleString()}
+                  {formatCurrency(item.total)}
                 </div>
               </div>
             ))}
@@ -105,7 +105,7 @@ export function TransactionConfirmationModal({
 
             <div className="flex items-center justify-between text-lg font-bold">
               <span>Total Pembayaran:</span>
-              <span className="text-blue-600 dark:text-blue-400">Rp {total.toLocaleString()}</span>
+              <span className="text-blue-600 dark:text-blue-400">{formatCurrency(total)}</span>
             </div>
           </div>
 

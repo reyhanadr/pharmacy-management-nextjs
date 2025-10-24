@@ -11,12 +11,12 @@ import type { Product } from "@/components/cashier/cashier-action"
 
 interface TransactionHistoryClientProps {
   initialTransactions: Transaction[]
-  initialProducts: Product[]
+  // initialProducts: Product[]
 }
 
 export function TransactionHistoryClient({
   initialTransactions,
-  initialProducts
+  // initialProducts
 }: TransactionHistoryClientProps) {
   return (
     <div className="[--header-height:calc(--spacing(14))]">
@@ -31,7 +31,7 @@ export function TransactionHistoryClient({
                   <TransactionHistoryHeader transactions={initialTransactions} />
                   <TransactionHistoryList
                     initialTransactions={initialTransactions}
-                    initialProducts={initialProducts}
+                    // initialProducts={initialProducts}
                   />
                 </div>
               </div>

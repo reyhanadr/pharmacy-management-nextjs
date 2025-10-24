@@ -15,7 +15,7 @@ import {
 } from "@tanstack/react-table"
 
 import { Input } from "@/components/ui/input"
-import { Search, Filter, Download } from "lucide-react"
+import { Search, Filter, Download, CreditCard, DollarSign, Smartphone, CheckCircle2, XCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -30,18 +30,18 @@ import { TransactionDetailModal } from "./transaction-detail-modal"
 import { columns } from "./transaction-list-column"
 import { TransactionRowActions } from "./transaction-row-actions"
 import type { Transaction } from "@/components/cashier/cashier-action"
-import type { Product } from "@/components/cashier/cashier-action"
+import { formatCurrency } from "@/components/utils/format-currency"
+import { formatDateLong } from "@/components/utils/format-date"
 
 interface TransactionHistoryListProps {
   initialTransactions: Transaction[]
-  initialProducts: Product[]
 }
 
 interface TransactionTableMeta extends TableMeta<Transaction> {
   handleViewTransaction: (transactionId: number) => void
 }
 
-export function TransactionHistoryList({ initialTransactions, initialProducts }: TransactionHistoryListProps) {
+export function TransactionHistoryList({ initialTransactions }: TransactionHistoryListProps) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
@@ -99,13 +99,30 @@ export function TransactionHistoryList({ initialTransactions, initialProducts }:
 
   const getPaymentMethodBadge = (method: string) => {
     const variants = {
-      cash: { variant: "default" as const, label: "Tunai", color: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" },
-      card: { variant: "secondary" as const, label: "Kartu", color: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200" },
-      digital: { variant: "outline" as const, label: "Digital", color: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200" }
+      cash: {
+        variant: "default" as const,
+        label: "Tunai",
+        color: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+        icon: DollarSign
+      },
+      card: {
+        variant: "secondary" as const,
+        label: "Kartu",
+        color: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+        icon: CreditCard
+      },
+      digital: {
+        variant: "outline" as const,
+        label: "Digital",
+        color: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
+        icon: Smartphone
+      }
     }
     const config = variants[method as keyof typeof variants] || variants.cash
+    const IconComponent = config.icon
     return (
-      <Badge variant={config.variant} className={config.color}>
+      <Badge variant={config.variant} className={`${config.color} flex items-center gap-1 text-xs`}>
+        <IconComponent className="h-3 w-3" />
         {config.label}
       </Badge>
     )
@@ -113,12 +130,24 @@ export function TransactionHistoryList({ initialTransactions, initialProducts }:
 
   const getStatusBadge = (status: string) => {
     const variants = {
-      completed: { variant: "default" as const, label: "Selesai", color: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" },
-      cancelled: { variant: "destructive" as const, label: "Dibatalkan", color: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200" }
+      completed: {
+        variant: "default" as const,
+        label: "Selesai",
+        color: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+        icon: CheckCircle2
+      },
+      cancelled: {
+        variant: "destructive" as const,
+        label: "Dibatalkan",
+        color: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+        icon: XCircle
+      }
     }
     const config = variants[status as keyof typeof variants] || variants.completed
+    const IconComponent = config.icon
     return (
-      <Badge variant={config.variant} className={config.color}>
+      <Badge variant={config.variant} className={`${config.color} flex items-center gap-1 text-xs`}>
+        <IconComponent className="h-3 w-3" />
         {config.label}
       </Badge>
     )
@@ -128,7 +157,7 @@ export function TransactionHistoryList({ initialTransactions, initialProducts }:
     <div className="w-full">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-4 gap-4">
         <div className="flex items-center gap-2 w-full sm:w-auto">
-          <div className="relative flex-1 sm:flex-initial sm:w-[300px]">
+          <div className="relative flex-1 sm:flex-initial sm:w-[350px]">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Cari transaksi..."
@@ -211,7 +240,7 @@ export function TransactionHistoryList({ initialTransactions, initialProducts }:
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-sm">
-                    #{row.original.id}
+                    # TRX-{String(row.original.id).padStart(4, '0')}
                   </span>
                   <div className="flex gap-1">
                     {getPaymentMethodBadge(row.original.payment_method)}
@@ -229,13 +258,13 @@ export function TransactionHistoryList({ initialTransactions, initialProducts }:
                 <div>
                   <span className="text-muted-foreground">Tanggal:</span>
                   <p className="font-medium">
-                    {new Date(row.original.date).toLocaleDateString('id-ID')}
+                    {formatDateLong(row.original.date)}
                   </p>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Total:</span>
                   <p className="font-bold text-green-600">
-                    Rp {row.original.total.toLocaleString()}
+                    {formatCurrency(row.original.total)}
                   </p>
                 </div>
                 <div className="col-span-2">
@@ -254,36 +283,42 @@ export function TransactionHistoryList({ initialTransactions, initialProducts }:
 
       {/* Pagination - Desktop */}
       <div className="hidden md:flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} dari{" "}
-          {table.getFilteredRowModel().rows.length} transaksi dipilih.
-        </div>
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Sebelumnya
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Selanjutnya
-          </Button>
-        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => table.previousPage()}
+          disabled={!table.getCanPreviousPage()}
+        >
+          Sebelumnya
+        </Button>
+          <div className="flex items-center gap-1">
+            {Array.from({ length: table.getPageCount() }, (_, i) => i + 1).slice(
+              Math.max(0, table.getState().pagination.pageIndex - 2),
+              Math.max(0, table.getState().pagination.pageIndex - 2) + 5
+            ).map((page) => (
+              <Button
+                key={page}
+                variant={table.getState().pagination.pageIndex === page - 1 ? "default" : "outline"}
+                size="sm"
+                onClick={() => table.setPageIndex(page - 1)}
+                className="w-8 h-8 p-0"
+              >
+                {page}
+              </Button>
+            ))}
+          </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => table.nextPage()}
+          disabled={!table.getCanNextPage()}
+        >
+          Selanjutnya
+        </Button>
       </div>
 
       {/* Pagination - Mobile */}
-      <div className="md:hidden flex items-center justify-between py-4">
-        <div className="text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} dari{" "}
-          {table.getFilteredRowModel().rows.length} dipilih
-        </div>
+      <div className="md:hidden flex items-center justify-end py-4">
         <div className="flex space-x-2">
           <Button
             variant="outline"
@@ -309,7 +344,6 @@ export function TransactionHistoryList({ initialTransactions, initialProducts }:
         open={detailModal.open}
         onOpenChange={(open) => setDetailModal({ ...detailModal, open })}
         transaction={detailModal.transaction}
-        products={initialProducts}
       />
     </div>
   )

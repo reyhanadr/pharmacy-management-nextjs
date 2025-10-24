@@ -1,6 +1,6 @@
 "use client"
 
-import * as React from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Command } from "lucide-react"
 import { AddProductModal } from "@/components/inventory/inventory-add-modal"
@@ -25,8 +25,8 @@ import Link from "next/link"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const router = useRouter()
-  const [isAddModalOpen, setIsAddModalOpen] = React.useState(false)
-  const [isAddSupplierModalOpen, setIsAddSupplierModalOpen] = React.useState(false)
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+  const [isAddSupplierModalOpen, setIsAddSupplierModalOpen] = useState(false)
 
   const handleProductAdded = () => {
     // Navigate to inventory list page after product is added

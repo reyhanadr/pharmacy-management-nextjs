@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ArrowUpDown } from "lucide-react"
 import { InventoryRowActions } from "./inventory-row-actions"
+import { formatCurrency } from "@/components/utils/format-currency"
 
 export interface Product {
   id: number
@@ -119,11 +120,7 @@ export const columns: ColumnDef<Product>[] = [
     },
     cell: ({ row }) => {
       const amount = parseFloat(row.getValue("price_buy"))
-      const formatted = new Intl.NumberFormat("id-ID", {
-        style: "currency",
-        currency: "IDR",
-      }).format(amount)
-      return <div>Rp {formatted.replace("Rp", "").trim()}</div>
+      return <div>{formatCurrency(amount)}</div>
     },
   },
   {
@@ -141,11 +138,7 @@ export const columns: ColumnDef<Product>[] = [
     },
     cell: ({ row }) => {
       const amount = parseFloat(row.getValue("price_sell"))
-      const formatted = new Intl.NumberFormat("id-ID", {
-        style: "currency",
-        currency: "IDR",
-      }).format(amount)
-      return <div>Rp {formatted.replace("Rp", "").trim()}</div>
+      return <div>{formatCurrency(amount)}</div>
     },
   },
   {

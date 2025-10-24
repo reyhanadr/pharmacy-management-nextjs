@@ -12,6 +12,8 @@ import { PurchaseOrderStatusBadge } from "./purchase-order-status-badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Calendar, ShoppingCart, Truck, CheckCircle, XCircle, Printer, Eye } from "lucide-react"
+import { formatCurrency } from "@/components/utils/format-currency"
+import { formatDate } from "@/components/utils/format-date"
 import { PurchaseOrderConfirmationModal } from "./purchase-order-confirmation"
 import { useRouter } from "next/navigation"
 
@@ -61,23 +63,6 @@ export function PurchaseOrderDetailModal({
   const router = useRouter()
 
   if (!purchaseOrder) return null
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-    }).format(amount)
-  }
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("id-ID", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    })
-  }
 
   const handleReceive = () => {
     setConfirmationModal({

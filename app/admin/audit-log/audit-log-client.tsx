@@ -6,10 +6,12 @@ import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { SiteHeader } from "@/components/layout/header"
 import { AppSidebar } from "@/components/sidebar/app-sidebar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { AuditLogTable, StockLogTable } from "@/components/audit-log/audit-log-table"
+import { AuditLogTable } from "@/components/audit-log/audit-log-table"
+import { StockLogTable } from "@/components/audit-log/stock-log-table"
 import { toast } from "sonner"
 import type { Product, Transaction, UserProfile } from "@/components/cashier/cashier-action"
-import type { AuditLog, StockLog } from "@/components/audit-log/audit-log-action"
+import type { AuditLog } from "@/components/audit-log/audit-log-action"
+import type { StockLog } from "@/components/audit-log/stock-log"
 
 interface AuditLogPageClientProps {
   initialProducts: Product[]
@@ -24,19 +26,7 @@ export function AuditLogPageClient({
   initialAuditLogs,
   initialStockLogs
 }: AuditLogPageClientProps) {
-  const handleTransactionComplete = (transaction: Transaction) => {
-    // Show success toast
-    toast.success(`Transaksi berhasil! Total: Rp ${transaction.total.toLocaleString()}`, {
-      description: `Transaksi dengan ID #${transaction.id} telah selesai diproses.`,
-      duration: 5000,
-    })
-    window.location.reload()
-    // Log transaction for debugging
-    console.log('Transaction completed:', transaction)
 
-    // Optional: Could redirect to transaction history or reset form
-    // For now, just show the toast notification
-  }
 
   return (
     <div className="[--header-height:calc(--spacing(14))]">
@@ -80,14 +70,7 @@ export function AuditLogPageClient({
                     </TabsContent>
                   </Tabs>
 
-                  {/* Transaction Form for Testing */}
-                  {/* <div className="mt-8">
-                    <CashierForm
-                      initialProducts={initialProducts}
-                      userData={userData}
-                      onTransactionComplete={handleTransactionComplete}
-                    />
-                  </div> */}
+
                 </div>
               </div>
             </div>

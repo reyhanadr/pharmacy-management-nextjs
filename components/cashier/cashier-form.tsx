@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge'
 import { createTransaction, getProducts, type Product, type TransactionItem, type Transaction, type UserProfile } from './cashier-action'
 import { TransactionConfirmationModal } from './cashier-confirmation-modal'
+import { formatCurrency } from '@/components/utils/format-currency'
 
 interface CashierFormProps {
   initialProducts?: Product[]
@@ -243,7 +244,7 @@ export function CashierForm({ initialProducts = [], userData, onTransactionCompl
                         <div className="flex-1">
                           <div className="font-medium">{product.name}</div>
                           <div className="text-sm text-gray-500 dark:text-gray-400">
-                            Kode: {product.code} | Stok: {product.stock} | Harga: Rp {product.price_sell.toLocaleString()}
+                            Kode: {product.code} | Stok: {product.stock} | Harga: {formatCurrency(product.price_sell)}
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -336,10 +337,10 @@ export function CashierForm({ initialProducts = [], userData, onTransactionCompl
                             </div>
                           </TableCell>
                           <TableCell className="text-right">
-                            Rp {item.price_sell.toLocaleString()}
+                            {formatCurrency(item.price_sell)}
                           </TableCell>
                           <TableCell className="text-right font-medium">
-                            Rp {item.total.toLocaleString()}
+                            {formatCurrency(item.total)}
                           </TableCell>
                           <TableCell className="text-center">
                             <Button
@@ -361,7 +362,7 @@ export function CashierForm({ initialProducts = [], userData, onTransactionCompl
                 {/* Total */}
                 <div className="flex justify-end">
                   <div className="text-xl font-bold">
-                    Total: Rp {calculateTotal().toLocaleString()}
+                    Total: {formatCurrency(calculateTotal())}
                   </div>
                 </div>
               </div>

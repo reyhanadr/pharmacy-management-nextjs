@@ -19,42 +19,24 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Database, Search } from "lucide-react"
-import type { AuditLog } from "./audit-log-action"
-import { auditLogColumns } from "./audit-log-table-column"
-import { AuditLogDetailModal } from "./audit-log-detail-modal"
+import type { StockLog } from "./stock-log"
+import { stockLogColumns } from "./stock-log-table-column"
 
-interface AuditLogTableProps {
-  initialLogs: AuditLog[]
+interface StockLogTableProps {
+  initialLogs: StockLog[]
   title: string
   description: string
 }
 
-export function AuditLogTable({ initialLogs, title, description }: AuditLogTableProps) {
+export function StockLogTable({ initialLogs, title, description }: StockLogTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [globalFilter, setGlobalFilter] = React.useState("")
 
-  // Detail modal state
-  const [detailModal, setDetailModal] = React.useState<{
-    open: boolean
-    auditLog: AuditLog | null
-  }>({
-    open: false,
-    auditLog: null
-  })
-
-  // Handle detail view
-  const handleViewDetail = (auditLog: AuditLog) => {
-    setDetailModal({
-      open: true,
-      auditLog
-    })
-  }
-
   const table = useReactTable({
     data: initialLogs,
-    columns: auditLogColumns,
+    columns: stockLogColumns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -65,9 +47,6 @@ export function AuditLogTable({ initialLogs, title, description }: AuditLogTable
     onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: "includesString",
     getRowId: (row) => row.id.toString(),
-    meta: {
-      handleViewDetail: handleViewDetail,
-    },
     state: {
       sorting,
       columnFilters,
@@ -92,7 +71,7 @@ export function AuditLogTable({ initialLogs, title, description }: AuditLogTable
             <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
             <Input
               id="search"
-              placeholder="Cari berdasarkan tabel, user..."
+              placeholder="Cari berdasarkan produk, user, alasan..."
               value={globalFilter ?? ""}
               onChange={(event) => setGlobalFilter(String(event.target.value))}
               className="pl-10"
@@ -125,11 +104,7 @@ export function AuditLogTable({ initialLogs, title, description }: AuditLogTable
             <TableBody>
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => handleViewDetail(row.original)}
-                  >
+                  <TableRow key={row.id}>
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id} className="whitespace-nowrap">
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -139,8 +114,8 @@ export function AuditLogTable({ initialLogs, title, description }: AuditLogTable
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={auditLogColumns.length} className="h-24 text-center">
-                    Tidak ada audit log ditemukan.
+                  <TableCell colSpan={stockLogColumns.length} className="h-24 text-center">
+                    Tidak ada stock log ditemukan.
                   </TableCell>
                 </TableRow>
               )}
@@ -148,18 +123,16 @@ export function AuditLogTable({ initialLogs, title, description }: AuditLogTable
           </Table>
         </div>
 
-
-
-      {/* Pagination - Desktop */}
-      <div className="hidden md:flex items-center justify-end space-x-2 py-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          Sebelumnya
-        </Button>
+        {/* Pagination - Desktop */}
+        <div className="hidden md:flex items-center justify-end space-x-2 py-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            Sebelumnya
+          </Button>
           <div className="flex items-center gap-1">
             {Array.from({ length: table.getPageCount() }, (_, i) => i + 1).slice(
               Math.max(0, table.getState().pagination.pageIndex - 2),
@@ -186,13 +159,6 @@ export function AuditLogTable({ initialLogs, title, description }: AuditLogTable
           </Button>
         </div>
       </CardContent>
-
-      {/* Detail Modal */}
-      <AuditLogDetailModal
-        open={detailModal.open}
-        onOpenChange={(open) => setDetailModal({ ...detailModal, open })}
-        auditLog={detailModal.auditLog}
-      />
     </Card>
   )
 }

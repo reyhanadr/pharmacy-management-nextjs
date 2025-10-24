@@ -2,7 +2,7 @@ import { TransactionHistoryClient } from "./transaction-history-client"
 import { getProducts, getTransactionHistory } from "@/components/cashier/cashier-action"
 import { getUserData } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
-import type { Transaction, Product } from "@/components/cashier/cashier-action";
+import type { Transaction} from "@/components/cashier/cashier-action";
 
 interface ExtendedUserData {
   id: string
@@ -20,14 +20,12 @@ export default async function TransactionHistoryPage() {
     redirect('/login');
   }
 
-  // Fetch transaction history and products
+  // Fetch transaction history
   let transactions: Transaction[] = [];
-  let products: Product[] = [];
 
   try {
-    [transactions, products] = await Promise.all([
-      getTransactionHistory(userData.id), // Get current user's transactions
-      getProducts()
+    [transactions] = await Promise.all([
+      getTransactionHistory(userData.id), 
     ]);
   } catch (error) {
     console.error('Error fetching transaction history data:', error);
@@ -36,7 +34,7 @@ export default async function TransactionHistoryPage() {
   return (
     <TransactionHistoryClient
       initialTransactions={transactions}
-      initialProducts={products}
+      // initialProducts={products}
     />
   )
 }

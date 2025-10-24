@@ -25,6 +25,8 @@ import {
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { CalendarDays, MapPin, Phone, Mail, User, Package, DollarSign } from 'lucide-react'
+import { formatCurrency } from "@/components/utils/format-currency"
+import { formatDate } from "@/components/utils/format-date"
 import {
   getPurchaseOrderDetail,
   type InvoiceDetail
@@ -64,23 +66,6 @@ export function InvoiceDetailModal({
       loadInvoiceDetail()
     }
   }, [open, purchaseOrderId, loadInvoiceDetail])
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-    }).format(amount)
-  }
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('id-ID', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
-  }
 
   if (!invoiceData) {
     return (

@@ -6,6 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { ArrowUpDown } from "lucide-react"
 import { PurchaseOrderManageRowActions } from "./purchase-order-manage-row-action"
 import { PurchaseOrderResponse } from "./purchase-order-action"
+import { formatCurrency } from "@/components/utils/format-currency"
 
 export type { PurchaseOrderResponse }
 
@@ -121,11 +122,7 @@ export const columns: ColumnDef<PurchaseOrderResponse>[] = [
     },
     cell: ({ row }) => {
       const amount = parseFloat(row.getValue("total_amount"))
-      const formatted = new Intl.NumberFormat("id-ID", {
-        style: "currency",
-        currency: "IDR",
-      }).format(amount)
-      return <div className="font-medium">Rp {formatted.replace("Rp", "").trim()}</div>
+      return <div className="font-medium">{formatCurrency(amount)}</div>
     },
   },
   {

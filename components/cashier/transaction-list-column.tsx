@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ColumnDef } from "@tanstack/react-table"
 import { Button } from "@/components/ui/button"
-import { ArrowUpDown } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { ArrowUpDown, CreditCard, DollarSign, Smartphone, CheckCircle2, XCircle } from "lucide-react"
+import { formatCurrency } from "@/components/utils/format-currency"
+import { formatDateLong } from "@/components/utils/format-date"
 import { TransactionRowActions } from "./transaction-row-actions"
 
 export interface Transaction {
@@ -23,12 +26,12 @@ export const columns: ColumnDef<Transaction>[] = [
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          ID Transaksi
+          No. Transaksi
           <ArrowUpDown />
         </Button>
       )
     },
-    cell: ({ row }) => <div className="font-mono">#{row.getValue("id")}</div>,
+    cell: ({ row }) => <div className="font-mono">TRX-{String(row.getValue("id")).padStart(4, '0')}</div>,
   },
   {
     accessorKey: "date",
@@ -44,8 +47,8 @@ export const columns: ColumnDef<Transaction>[] = [
       )
     },
     cell: ({ row }) => {
-      const date = new Date(row.getValue("date"))
-      return <div className="whitespace-nowrap">{date.toLocaleDateString("id-ID")}</div>
+      const date = row.getValue("date") as string
+      return <div className="whitespace-nowrap font-medium">{formatDateLong(date)}</div>
     },
   },
   {
@@ -63,12 +66,39 @@ export const columns: ColumnDef<Transaction>[] = [
     },
     cell: ({ row }) => {
       const method = row.getValue("payment_method") as string
-      const labels = {
-        cash: "Tunai",
-        card: "Kartu",
-        digital: "Digital"
+
+      const getPaymentMethodBadge = (method: string) => {
+        const variants = {
+          cash: {
+            variant: "default" as const,
+            label: "Tunai",
+            color: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+            icon: DollarSign
+          },
+          card: {
+            variant: "secondary" as const,
+            label: "Kartu",
+            color: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+            icon: CreditCard
+          },
+          digital: {
+            variant: "outline" as const,
+            label: "Digital",
+            color: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
+            icon: Smartphone
+          }
+        }
+        const config = variants[method as keyof typeof variants] || variants.cash
+        const IconComponent = config.icon
+        return (
+          <Badge variant={config.variant} className={`${config.color} flex items-center gap-1 text-xs`}>
+            <IconComponent className="h-3 w-3" />
+            {config.label}
+          </Badge>
+        )
       }
-      return <div className="font-medium">{labels[method as keyof typeof labels] || method}</div>
+
+      return getPaymentMethodBadge(method)
     },
   },
   {
@@ -86,19 +116,33 @@ export const columns: ColumnDef<Transaction>[] = [
     },
     cell: ({ row }) => {
       const status = row.getValue("status") as string
-      const labels = {
-        completed: "Selesai",
-        cancelled: "Dibatalkan"
+
+      const getStatusBadge = (status: string) => {
+        const variants = {
+          completed: {
+            variant: "default" as const,
+            label: "Selesai",
+            color: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+            icon: CheckCircle2
+          },
+          cancelled: {
+            variant: "destructive" as const,
+            label: "Dibatalkan",
+            color: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+            icon: XCircle
+          }
+        }
+        const config = variants[status as keyof typeof variants] || variants.completed
+        const IconComponent = config.icon
+        return (
+          <Badge variant={config.variant} className={`${config.color} flex items-center gap-1 text-xs`}>
+            <IconComponent className="h-3 w-3" />
+            {config.label}
+          </Badge>
+        )
       }
-      const colors = {
-        completed: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
-        cancelled: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-      }
-      return (
-        <div className={`px-2 py-1 rounded text-xs font-medium ${colors[status as keyof typeof colors] || colors.completed}`}>
-          {labels[status as keyof typeof labels] || status}
-        </div>
-      )
+
+      return getStatusBadge(status)
     },
   },
   {
@@ -116,11 +160,7 @@ export const columns: ColumnDef<Transaction>[] = [
     },
     cell: ({ row }) => {
       const amount = parseFloat(row.getValue("total"))
-      const formatted = new Intl.NumberFormat("id-ID", {
-        style: "currency",
-        currency: "IDR",
-      }).format(amount)
-      return <div className="font-semibold text-green-600">Rp {formatted.replace("Rp", "").trim()}</div>
+      return <div className="font-semibold text-green-600 dark:text-green-400">{formatCurrency(amount)}</div>
     },
   },
   {

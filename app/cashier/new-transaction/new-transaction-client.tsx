@@ -17,7 +17,7 @@ export function NewTransactionPageClient({ initialProducts, userData }: NewTrans
   const handleTransactionComplete = (transaction: Transaction) => {
     // Show success toast
     toast.success(`Transaksi berhasil! Total: Rp ${transaction.total.toLocaleString()}`, {
-      description: `Transaksi dengan ID #${transaction.id} telah selesai diproses.`,
+      description: `Transaksi dengan No. Transaksi #TRX-${String(transaction.id).padStart(4, '0')} telah selesai diproses.`,
       duration: 5000,
     })
     // window.location.reload()

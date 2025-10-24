@@ -92,7 +92,7 @@ export function PurchaseOrderInvoiceClient({ purchaseOrder }: { purchaseOrder: I
                       size="lg"
                     >
                       <Printer className="h-4 w-4" />
-                      Print 
+                      Cetak 
                     </Button>
                   </div>
                   <div className="flex-1">

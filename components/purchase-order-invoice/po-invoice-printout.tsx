@@ -3,6 +3,8 @@
 import React from 'react'
 import { Separator } from '@/components/ui/separator'
 import { MapPin, Phone, Mail, Building2, FileText } from 'lucide-react'
+import { formatCurrency } from "@/components/utils/format-currency"
+import { formatDate } from "@/components/utils/format-date"
 import {
   Table,
   TableBody,
@@ -23,32 +25,6 @@ interface InvoicePrintoutProps {
 }
 
 export function InvoicePrintout({ purchaseOrder }: InvoicePrintoutProps) {
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-    }).format(amount)
-  }
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('id-ID', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    })
-  }
-
-  const formatDateTime = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('id-ID', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
-  }
-
   // Transform InvoiceDetail to PurchaseOrderData structure for the printout
   const poData = {
     id: purchaseOrder.purchaseOrder.id,
@@ -234,7 +210,7 @@ export function InvoicePrintout({ purchaseOrder }: InvoicePrintoutProps) {
             <div className="text-center">
               <div className="space-y-2">
                 <div className="text-sm text-gray-600">
-                  Generated on: {formatDateTime(new Date().toISOString())}
+                  Generated on: {formatDate(new Date().toISOString())}
                 </div>
                 <div className="text-xs text-gray-500">
                   This is a computer-generated document

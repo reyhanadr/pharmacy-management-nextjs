@@ -11,6 +11,8 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Calendar, Edit, Package, TrendingUp, Truck } from "lucide-react"
+import { formatCurrency } from "@/components/utils/format-currency"
+import { formatDate } from "@/components/utils/format-date"
 
 interface Product {
   id: number
@@ -39,23 +41,6 @@ export function InventoryDetailModal({
   onEdit,
 }: InventoryDetailModalProps) {
   if (!product) return null
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-    }).format(amount)
-  }
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("id-ID", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    })
-  }
 
   const getStockStatus = (stock: number) => {
     if (stock === 0) return { label: "Habis", variant: "destructive" as const }
