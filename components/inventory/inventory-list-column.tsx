@@ -5,19 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { ArrowUpDown } from "lucide-react"
 import { InventoryRowActions } from "./inventory-row-actions"
 import { formatCurrency } from "@/components/utils/format-currency"
-
-export interface Product {
-  id: number
-  code: string
-  name: string
-  category: string | null
-  stock: number
-  price_buy: number
-  price_sell: number
-  supplier_name?: string | null
-  created_at: string
-  updated_at: string
-}
+import type { Product } from "@/components/inventory/inventory-action"
 
 export const columns: ColumnDef<Product>[] = [
   {
@@ -104,6 +92,12 @@ export const columns: ColumnDef<Product>[] = [
       const stock = row.getValue("stock") as number
       return <div className={stock < 10 ? "text-red-600 font-medium" : ""}>{stock}</div>
     },
+    filterFn: (row, columnId, filterValue) => {
+      const value = row.getValue(columnId) as number;
+      if (filterValue.min !== undefined && value < filterValue.min) return false;
+      if (filterValue.max !== undefined && value > filterValue.max) return false;
+      return true;
+    },
   },
   {
     accessorKey: "price_buy",
@@ -121,6 +115,12 @@ export const columns: ColumnDef<Product>[] = [
     cell: ({ row }) => {
       const amount = parseFloat(row.getValue("price_buy"))
       return <div>{formatCurrency(amount)}</div>
+    },
+    filterFn: (row, columnId, filterValue) => {
+      const value = parseFloat(row.getValue(columnId) as string);
+      if (filterValue.min !== undefined && value < filterValue.min) return false;
+      if (filterValue.max !== undefined && value > filterValue.max) return false;
+      return true;
     },
   },
   {

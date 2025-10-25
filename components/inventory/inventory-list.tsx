@@ -15,9 +15,9 @@ import {
 } from "@tanstack/react-table"
 
 import { Input } from "@/components/ui/input"
-import { Search } from "lucide-react"
+import { Search, Download } from "lucide-react"
+import { InventoryFilter } from "./inventory-filter"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import {
   Table,
   TableBody,
@@ -29,10 +29,12 @@ import {
 import { deleteProduct, deleteMultipleProducts, Product } from "./inventory-action"
 import { toast } from "sonner"
 import { columns } from "./inventory-list-column"
-import { InventoryRowActions } from "./inventory-row-actions"
+import { MobileCardView, MobilePagination } from "./inventory-list-card"
 import { InventoryDeleteModal } from "./inventory-delete-modal"
 import { InventoryDetailModal } from "./inventory-detail-modal"
 import { EditProductModal } from "./inventory-edit-modal"
+import { ExportExcelButton } from "./export-excel-button"
+
 import { Trash, X } from "lucide-react"
 
 interface InventoryListClientProps {
@@ -209,21 +211,29 @@ export function InventoryList({ initialProducts }: InventoryListClientProps) {
 
   return (
     <div className="w-full">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-4 gap-4">
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <div className="relative flex-1 sm:flex-initial sm:w-[300px]">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Cari produk..."
-              value={globalFilter ?? ""}
-              onChange={(event) => setGlobalFilter(String(event.target.value))}
-              className="pl-8"
-            />
+      <div className="space-y-4">
+        {/* Search and Action Buttons Row */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+          <div className="flex flex-col sm:flex-row items-start gap-3 w-full">
+            <div className="relative w-full sm:w-[300px]">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Cari produk..."
+                value={globalFilter ?? ""}
+                onChange={(event) => setGlobalFilter(String(event.target.value))}
+                className="pl-8 w-full"
+              />
+            </div>
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <InventoryFilter table={table} />
+              <ExportExcelButton data={products} fileName="data-produk" />
+            </div>
           </div>
         </div>
 
+        {/* Selection Controls Row */}
         {Object.keys(rowSelection).length > 0 && (
-          <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="flex flex-wrap items-center gap-2 mb-4">
             <Button
               variant="outline"
               size="sm"
@@ -308,147 +318,107 @@ export function InventoryList({ initialProducts }: InventoryListClientProps) {
       </div>
 
       {/* Mobile Card View */}
-      <div className="md:hidden space-y-4">
-        {table.getRowModel().rows?.length ? (
-          table.getRowModel().rows.map((row) => (
-            <div
-              key={row.id}
-              className={`border rounded-lg p-4 space-y-3 cursor-pointer hover:bg-muted/50 transition-colors focus-within:bg-muted/50 ${
-                row.getIsSelected() ? 'bg-muted' : ''
-              }`}
-              onClick={() => handleViewProduct(row.original.id)}
-              role="button"
-              tabIndex={0}
-              aria-label={`Klik untuk melihat detail produk ${row.getValue("name")}`}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault()
-                  handleViewProduct(row.original.id)
-                }
-              }}
-            >
-              {/* Mobile Card Header */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    checked={row.getIsSelected()}
-                    onCheckedChange={(value) => row.toggleSelected(!!value)}
-                    onClick={(e) => e.stopPropagation()}
-                    aria-label={`Pilih ${row.getValue("name")}`}
-                  />
-                  <span className="font-medium text-sm">
-                    {row.getValue("name")}
-                  </span>
-                </div>
-                <div onClick={(e) => e.stopPropagation()}>
-                  <InventoryRowActions
-                    product={row.original}
-                    onDetail={() => handleViewProduct(row.original.id)}
-                    onEdit={() => handleEditProduct(row.original.id)}
-                    onDelete={() => handleDeleteProduct(row.original.id)}
-                  />
-                </div>
-              </div>
-
-              {/* Mobile Card Content */}
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="text-muted-foreground">Kode:</span>
-                  <p className="font-medium">{row.getValue("code")}</p>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Kategori:</span>
-                  <p>{row.getValue("category") || "Tidak ada kategori"}</p>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Stok:</span>
-                  <p className={(row.getValue("stock") as number) < 10 ? "text-red-600 font-medium" : ""}>
-                    {row.getValue("stock")}
-                  </p>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Supplier:</span>
-                  <p>{row.getValue("supplier_name") || "Tidak ada supplier"}</p>
-                </div>
-                <div className="col-span-2">
-                  <span className="text-muted-foreground">Tanggal Ditambah:</span>
-                  <p>{new Date(row.getValue("created_at")).toLocaleDateString("id-ID")}</p>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Harga Beli:</span>
-                  <p>
-                    Rp {new Intl.NumberFormat("id-ID").format(row.getValue("price_buy") as number)}
-                  </p>
-                </div>
-                <div className="col-span-2">
-                  <span className="text-muted-foreground">Harga Jual:</span>
-                  <p>
-                    Rp {new Intl.NumberFormat("id-ID").format(row.getValue("price_sell") as number)}
-                  </p>
-                </div>
-              </div>
-            </div>
-          ))
-        ) : (
-          <div className="text-center py-8 text-muted-foreground">
-            Tidak ada data produk.
-          </div>
-        )}
-      </div>
+      <MobileCardView
+        table={table}
+        handleViewProduct={handleViewProduct}
+        handleEditProduct={handleEditProduct}
+        handleDeleteProduct={handleDeleteProduct}
+      />
 
       {/* Pagination - Desktop */}
-      <div className="hidden md:flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
+      <div className="hidden md:flex items-center justify-between py-4">
+        <div className="text-sm text-muted-foreground">
           {table.getFilteredSelectedRowModel().rows.length} dari{" "}
           {table.getFilteredRowModel().rows.length} baris dipilih.
         </div>
-        <div className="space-x-2">
+        <div className="flex items-center space-x-1">
           <Button
-            className="cursor-pointer"
+            variant="outline"
+            size="sm"
+            onClick={() => table.setPageIndex(0)}
+            disabled={!table.getCanPreviousPage()}
+            className="hidden sm:flex"
+          >
+            &laquo;
+          </Button>
+          <Button
             variant="outline"
             size="sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
-            Sebelumnya
+            &lsaquo;
           </Button>
+          
+          {/* Page Numbers */}
+          {(() => {
+            const pageCount = table.getPageCount();
+            const currentPage = table.getState().pagination.pageIndex;
+            const pages = [];
+            
+            // Always show first page
+            if (currentPage > 1) {
+              pages.push(1);
+            }
+            
+            // Show ellipsis if needed
+            if (currentPage > 3) {
+              pages.push('...');
+            }
+            
+            // Show current page and adjacent pages
+            for (let i = Math.max(1, currentPage - 1); i <= Math.min(pageCount, currentPage + 1); i++) {
+              if (i > 0 && i <= pageCount) {
+                pages.push(i);
+              }
+            }
+            
+            // Show ellipsis if needed
+            if (currentPage < pageCount - 2) {
+              pages.push('...');
+            }
+            
+            // Always show last page if different from current range
+            if (currentPage < pageCount - 1 && !pages.includes(pageCount)) {
+              pages.push(pageCount);
+            }
+            
+            return pages.map((page, index) => (
+              <Button
+                key={index}
+                variant={page === currentPage + 1 ? "default" : "outline"}
+                size="sm"
+                onClick={() => typeof page === 'number' && table.setPageIndex(page - 1)}
+                disabled={page === '...'}
+                className={page === '...' ? 'cursor-default' : ''}
+              >
+                {page}
+              </Button>
+            ));
+          })()}
+          
           <Button
-            className="cursor-pointer"
             variant="outline"
             size="sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            Selanjutnya
+            &rsaquo;
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+            disabled={!table.getCanNextPage()}
+            className="hidden sm:flex"
+          >
+            &raquo;
           </Button>
         </div>
       </div>
 
       {/* Pagination - Mobile */}
-      <div className="md:hidden flex items-center justify-between py-4">
-        <div className="text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} dari{" "}
-          {table.getFilteredRowModel().rows.length} dipilih
-        </div>
-        <div className="flex space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            ‹
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            ›
-          </Button>
-        </div>
-      </div>
+      <MobilePagination table={table} />
 
       {/* Delete Confirmation Modal */}
       <InventoryDeleteModal
